@@ -71,3 +71,5 @@ dmypy.json
 # PyCharm & VSCode folder
 .idea/
 .vscode/
+
+training_data.json
