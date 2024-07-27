@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chatbot</title>
+	<style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .chat-container {
+            width: 500px;
+            margin: 0 auto;
+        }
+
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .input-box input {
+            width: 80%;
+            padding: 10px;
+        }
+
+        .input-box button {
+            width: 15%;
+            padding: 10px;
+        }
+
+        #feedback {
+            margin-top: 10px;
+        }
+
+        #feedback input {
+            width: 70%;
+            padding: 10px;
+        }
+
+        #feedback button {
+            width: 20%;
+            padding: 10px;
+        }
+	</style>
+</head>
+<body>
+<div class="chat-container">
+	<div class="chat-box" id="chat-box"></div>
+	<div class="input-box">
+		<input type="text" id="user-input" placeholder="Type your message here...">
+		<button onclick="sendMessage()">Send</button>
+	</div>
+	<div id="feedback" style="display: none;">
+		<p>If the response was incorrect, please provide the correct response:</p>
+		<input type="text" id="correct-response">
+		<button onclick="submitFeedback()">Submit</button>
+	</div>
+</div>
+
+<script>
+    function sendMessage() {
+        var userInput = document.getElementById("user-input").value;
+        var chatBox = document.getElementById("chat-box");
+        chatBox.innerHTML += "<p><b>You:</b> " + userInput + "</p>";
+        fetch("/get?msg=" + userInput)
+            .then(response => response.text())
+            .then(data => {
+                chatBox.innerHTML += "<p><b>Chatbot:</b> " + data + "</p>";
+                document.getElementById("user-input").value = "";
+                document.getElementById("feedback").style.display = "block";
+                document.getElementById("correct-response").dataset.userInput = userInput;
+                document.getElementById("correct-response").dataset.chatbotResponse = data;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+    }
+
+    function submitFeedback() {
+        var userInput = document.getElementById("correct-response").dataset.userInput;
+        var correctResponse = document.getElementById("correct-response").value;
+        var formData = new FormData();
+        formData.append("msg", userInput);
+        formData.append("correct_response", correctResponse);
+        fetch("/feedback", {
+            method: "POST",
+            body: formData
+        }).then(response => {
+            document.getElementById("feedback").style.display = "none";
+            document.getElementById("correct-response").value = "";
+        });
+    }
+</script>
+</body>
+</html>
