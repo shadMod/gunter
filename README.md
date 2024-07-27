@@ -17,5 +17,4 @@ src/
 │ └── predict.py
 │
 ├── training_data.json
-├── requirements.txt
 └── run.py
